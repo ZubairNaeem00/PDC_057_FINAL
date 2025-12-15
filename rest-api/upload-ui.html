@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Upload UI</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0; }
+    .container { max-width: 500px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px #0001; }
+    h2 { text-align: center; }
+    input[type="file"] { display: block; margin: 20px auto; }
+    button { display: block; margin: 20px auto; padding: 10px 30px; background: #0078d7; color: #fff; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+    button:disabled { background: #aaa; }
+    .results { margin-top: 30px; }
+    .result-item { background: #f9f9f9; margin-bottom: 10px; padding: 10px; border-radius: 4px; }
+    .meta { color: #555; font-size: 14px; }
+    .error { color: #c00; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Upload Images for Classification</h2>
+    <form id="uploadForm">
+      <input type="file" id="images" name="images" accept="image/*" multiple required />
+      <button type="submit">Upload</button>
+    </form>
+    <div class="results" id="results"></div>
+    <div class="error" id="error"></div>
+  </div>
+  <script>
+  const form = document.getElementById("uploadForm");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const files = document.getElementById("images").files;
+    const formData = new FormData();
+    for (const file of files) {
+      formData.append("images", file);
+    }
+
+    try {
+      const response = await axios.post("/uploadImage", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      // ✅ Fix here
+      const results = response.data;  // <-- use response.data
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = results.map(r => 
+        `File: ${r.filename}, Label: ${r.label}, Confidence: ${r.confidence}`
+      ).join("<br>");
+
+    } catch (err) {
+      console.error(err);
+    }
+  });
+</script>
+
+</body>
+</html>
